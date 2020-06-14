@@ -1,0 +1,21 @@
+import 'package:flutter/material.dart';
+
+Map perm_data = {"p1":{"icon":Icons.school,"text": "Update institute info"},
+                "p2":{"icon":Icons.storage,"text": "Add/Remove subject"},
+                "p3":{"icon":Icons.dashboard,"text": "Edit class and batch"},
+                "p4":{"icon":Icons.group,"text": "Add/Remove Admins"},
+                "p5":{"icon":Icons.account_circle,"text": "Add/Remove teachers"},
+                "p6":{"icon":Icons.face,"text": "Add/Remove Students"},
+                "p7":{"icon":Icons.notifications,"text": "Post notifications"},
+                "p8":{"icon":Icons.date_range,"text": "Edit TimeTable"},
+                "p9":{"icon":Icons.view_list,"text": "Register exams"},
+                "p10":{"icon":Icons.trending_up,"text": "Update Grades"},
+                "p11":{"icon":Icons.present_to_all,"text": "Post study materials"},
+                "p12":{"icon":Icons.train,"text": "Edit bus time"},
+                "p13":{"icon":Icons.book,"text": "Librarian"},
+                "p14":{"icon":Icons.date_range,"text": "View Attendance"},
+                "p15":{"icon":Icons.date_range,"text": "Edit Attendance"},
+                "p16":{"icon":Icons.grade,"text": "Post events"},
+                "p17":{"icon":Icons.description,"text": "Approve applications"},
+                "p18":{"icon":Icons.flag,"text": "View Issue reports"},
+};
