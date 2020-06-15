@@ -163,7 +163,7 @@ style: TextStyle(color: (txtcol!=null)?txtcol:Colors.black),
   }
   Widget logo(){
     return new Image.asset(
-                'assets/images/logo.png',
+                'images/logo.png',
                 width: logowidth,
                 height: logoheight,
                 fit: BoxFit.cover,
@@ -171,7 +171,7 @@ style: TextStyle(color: (txtcol!=null)?txtcol:Colors.black),
   }
 Widget logocustom(double width,double height){
   return new Image.asset(
-    'assets/images/logo.png',
+    'images/logo.png',
     width: width,
     height: height,
     fit: BoxFit.cover,

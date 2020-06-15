@@ -121,22 +121,7 @@ var m ={"joo":"kee"};
     load(this, true);
     //SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(statusBarColor: Colors.transparent));
     prefs = await SharedPreferences.getInstance();
-    /*
-    RemoteConfig remoteConfig = await RemoteConfig.instance;
-    await remoteConfig.fetch(expiration: Duration(hours: 1)).
-    timeout(new Duration(seconds: 60),onTimeout: (){
-      load(this, false);
-      network = false;
-    });
-    await remoteConfig.activateFetched().timeout(new Duration(seconds: 60));
-    key = remoteConfig.getValue('key').asString();
-    print(key);*/
-    //
-
-    //
-    //await ser.getinfo(this);
-    //showtoast("test",Colors.black);
-    //await initmon();
+    
     
     
     load(this, false);

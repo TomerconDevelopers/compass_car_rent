@@ -100,7 +100,7 @@ Future<File> pickfile(State m) async {
   //String extension = 'png';
   String filename = file.path.split("/").last;
   final String fileName = randomNumeric(5)+filename;
-  final String phpEndPoint = '$serurl/files/upload.php';
+  final String phpEndPoint = '$imageurl/files/upload.php';
   String base64Image = base64Encode(file.readAsBytesSync());
   await http.post(phpEndPoint, body: {
     "image": base64Image,
@@ -113,7 +113,7 @@ Future<File> pickfile(State m) async {
     FocusScope.of(m.context).requestFocus(new FocusNode());
   });
   m.setState(() {loadingtext="loading ...";});
-  return "$serurl/files/$fileName";
+  return "$imageurl/files/$fileName";
 }
 //=============== file ====================
   Widget open(String url, String id, String filepath, String filename) =>

@@ -1,8 +1,54 @@
-import 'package:compass_rent_car/utils/styles.dart';
-import 'package:compass_rent_car/utils/utils.dart';
-import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'dart:io';
 
-class Login extends StatelessWidget {
+import 'package:compass_rent_car/utils/dev.dart';
+
+import '../../globals.dart';
+import '../styles.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+class Login extends StatefulWidget {
+  //final String text,name;
+  //Base({Key key, @required this.text,@required this.name}) : super(key: key);
+  @override
+  //BaseState createState() => new BaseState(text,name);
+  LoginState createState() => new LoginState();
+}
+class LoginState extends State<Login> {
+  String errortxt="";
+  TextEditingController userid = new TextEditingController();
+  TextEditingController pwd = new TextEditingController();
+  asyncFunc(BuildContext) async {
+
+  }
+  signin() async {
+    var user = await checkuserexists(userid.text);
+    print(user);
+    if(user==false){setState(() {
+      errortxt="User doesn't exists";
+    });}
+    else{
+      //check password
+      Map<dynamic, dynamic> userdata = json.decode(user);
+      if(userdata["pwd"].toString()==pwd.text){gotodashboard();}
+      else{setState(() {errortxt = "Incorrect password";});
+      }
+      
+    }
+  }
+  gotodashboard(){
+    print("Logged in succesfully");
+  }
+  
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => start(context));
+  }
+  void start(BuildContext){
+    asyncFunc(BuildContext);
+  }
+  @override void dispose() {super.dispose();}
   @override
   Widget build(BuildContext context) {
     return Scaffold(body:Stack(
@@ -52,6 +98,8 @@ class Login extends StatelessWidget {
                         color: Colors.black,
                         fontFamily: 'SFUIDisplay'
                       ),
+                      controller: userid,
+                      onChanged: (val){setState(() {errortxt="";});},
                       decoration: iprounded("Username",
                        Icons.person_outline)
                     ),
@@ -64,18 +112,27 @@ class Login extends StatelessWidget {
           ),
                   child: TextFormField(
                     obscureText: true,
+                    onChanged: (val){setState(() {errortxt="";});},
                     style: TextStyle(
                       color: Colors.black,
                       fontFamily: 'SFUIDisplay'
                     ),
+                    controller: pwd,
                     decoration: iprounded("Password",
                        Icons.lock_outline)
                   ),
                 ),
+                if(errortxt!="")SizedBox(height: 10,),
+                if(errortxt!="")Text(errortxt, style: TextStyle(
+                  fontSize: 20,fontWeight: FontWeight.w800,
+                  color: 
+                Colors.red),),
                 Padding(
                   padding: EdgeInsets.only(top: 20),
                   child: MaterialButton(
-                    onPressed: (){},//since this is only a UI app
+                    onPressed: (){
+                      signin();
+                    },//since this is only a UI app
                     child: Text('SIGN IN',
                     style: TextStyle(
                       fontSize: 15,

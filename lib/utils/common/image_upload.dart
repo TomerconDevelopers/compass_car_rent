@@ -61,7 +61,7 @@ Future<String> uploadimage(File file,State m) async {
   //String extension = 'png';
   String filename = file.path.split("/").last;
   final String fileName = randomNumeric(5)+filename;
-  final String phpEndPoint = '$serurl/pics/upload.php';
+  final String phpEndPoint = '$imageurl/pics/upload.php';
   String base64Image = base64Encode(file.readAsBytesSync());
   await http.post(phpEndPoint, body: {
     "image": base64Image,
@@ -81,7 +81,7 @@ Future<String> uploadimage(File file,State m) async {
     FocusScope.of(m.context).requestFocus(new FocusNode());
   });
   m.setState(() {loadingtext="loading ...";});
-  return "$serurl/pics/$fileName";
+  return "$imageurl/pics/$fileName";
 }
 getImage(State m,int type, int quality) async {
   var image = await ImagePicker.pickImage(
