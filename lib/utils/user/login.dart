@@ -1,12 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:compass_rent_car/dashbaord.dart';
 import 'package:compass_rent_car/utils/dev.dart';
+import 'package:compass_rent_car/utils/utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../globals.dart';
 import '../styles.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
+import '../widgets.dart';
 class Login extends StatefulWidget {
   //final String text,name;
   //Base({Key key, @required this.text,@required this.name}) : super(key: key);
@@ -16,10 +21,12 @@ class Login extends StatefulWidget {
 }
 class LoginState extends State<Login> {
   String errortxt="";
+  SharedPreferences prefs;
   TextEditingController userid = new TextEditingController();
   TextEditingController pwd = new TextEditingController();
   asyncFunc(BuildContext) async {
-
+    prefs = await SharedPreferences.getInstance();
+    
   }
   signin() async {
     var user = await checkuserexists(userid.text);
@@ -30,14 +37,19 @@ class LoginState extends State<Login> {
     else{
       //check password
       Map<dynamic, dynamic> userdata = json.decode(user);
-      if(userdata["pwd"].toString()==pwd.text){gotodashboard();}
+      if(userdata["pwd"].toString()==pwd.text){gotodashboard(userdata["_id"]);}
       else{setState(() {errortxt = "Incorrect password";});
       }
       
     }
   }
-  gotodashboard(){
+  gotodashboard(String userid){
+    prefs.setString("userid", encrypt("$userid"));
     print("Logged in succesfully");
+     Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Dashboard()),
+      );
   }
   
   @override
@@ -123,10 +135,7 @@ class LoginState extends State<Login> {
                   ),
                 ),
                 if(errortxt!="")SizedBox(height: 10,),
-                if(errortxt!="")Text(errortxt, style: TextStyle(
-                  fontSize: 20,fontWeight: FontWeight.w800,
-                  color: 
-                Colors.red),),
+                if(errortxt!="")errortext(errortxt),
                 Padding(
                   padding: EdgeInsets.only(top: 20),
                   child: MaterialButton(

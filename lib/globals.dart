@@ -6,13 +6,15 @@ import 'package:flutter/material.dart';
 //STRINGS
 String app_name = "compass car rent";
 String slogan = "Needs on doors";
-String bg_image = "assets/images/bg.png";
+
 double logowidth = 140;double logoheight = 50;
 //COLORS
-Color prim_color = Colors.blueGrey;
+//Color(0xffff2d55)
+Color prim_color = Color(0xffff2d55);
 Color themecol = Colors.blueGrey[800];
 //BG GRADIENT
-Color grad1 = Colors.yellow[600];Color grad2 = Colors.yellow[600];
+Color grad1 = Colors.grey[100];
+Color grad2 = Colors.grey[200];
 
 Map<dynamic,dynamic> cu_perm = {};
 

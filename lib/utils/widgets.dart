@@ -268,3 +268,28 @@ Widget roundedtext(String txt,Color bgcol,Color txtcol, double pad, fontsize){
       ),
     ));
   }
+  Widget errortext(String txt){
+    return Container(
+      color: Colors.grey[300],
+      padding: EdgeInsets.all(10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children:[
+        Icon(Icons.warning, color: Colors.red,),
+        SizedBox(width: 10,),
+        Text(txt, style: TextStyle(
+                  fontSize: 20,fontWeight: FontWeight.w400,
+                  color: 
+                Colors.red),)
+      ])
+    );
+  }
+  Widget buttontext(String txt){
+    return Text(txt,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontFamily: 'SFUIDisplay',
+                      fontWeight: FontWeight.w500,
+                    ),
+                    );
+  }

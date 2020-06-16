@@ -1,9 +1,12 @@
+import 'package:compass_rent_car/utils/dev.dart';
 import 'package:compass_rent_car/utils/user/login.dart';
+import 'package:compass_rent_car/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 //KISWeb holds whether platform is web or not (Boolean)
 import 'package:flutter/foundation.dart' show kIsWeb;
 
+import 'dashbaord.dart';
 import 'home.dart';
 import 'intro.dart';
 import 'utils/widgets.dart';
@@ -47,38 +50,36 @@ class _MyHomePageState extends State<MyHomePage> {
   }
   void start(BuildContext){asyncFunc(BuildContext);}
   asyncFunc(BuildContext) async { 
-    if (kIsWeb) {
-    // running on the web!
-    //No introslider, Directly to homepage
-    Navigator.pushReplacement(
-        BuildContext,
-        MaterialPageRoute(builder: (context) => Login()),
-      );
-
-    } else {
-     // NOT running on the web! You can check for additional platforms here.
-     mobilespecific(BuildContext);
-    }
+    //navigatetodashboard();
+   loginlogic(context);
   }
-  // Introslider is required for android and ios.
-  mobilespecific(BuildContext) async {
+  loginlogic(BuildContext) async {
     prefs = await SharedPreferences.getInstance();
-    var frun = prefs.getBool("frun");
-
-    if(frun==true){
-      //Navigate to home
-      Navigator.pushReplacement(
-        BuildContext,
+    var userid = prefs.getString("userid");
+    
+      //Check if user already logged in
+      if(userid!=null){
+        String decrypted_id = decrypt(userid);
+        var userexists = await checkuserexists(decrypted_id);
+        // Check userid exists in server
+        (userexists!=false)?navigatetodashboard():navigatetologin();
+      }
+      else{
+        //Navigate to login
+        navigatetologin();
+      } 
+  }
+  navigatetologin(){
+    Navigator.pushReplacement(
+        context,
         MaterialPageRoute(builder: (context) => Login()),
       );
-    }
-    else{
-      //Navigate to Intro
-      Navigator.pushReplacement(
-        BuildContext,
-        MaterialPageRoute(builder: (context) => Intro()),
+  }
+  navigatetodashboard(){
+     Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Dashboard()),
       );
-    }
   }
   @override
   Widget build(BuildContext context) {

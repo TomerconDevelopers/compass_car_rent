@@ -17,7 +17,7 @@ RoundedRectangleBorder roundedborder(double val){
     borderRadius: new BorderRadius.circular(val),
   );
 }
-final mkey = en.Key.fromUtf8(key);
+final mkey = en.Key.fromUtf8("qxDO7aSO5owUNEEBq42PbzGYToVxJOXJ");
 final iv = en.IV.fromLength(16);
 final encrypter = en.Encrypter(en.AES(mkey));
 String encrypt(String txt){

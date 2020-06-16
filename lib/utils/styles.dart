@@ -8,10 +8,7 @@ BoxDecoration bg(){
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
       colors: [grad1,grad2]),
-              image: DecorationImage(
-                image: AssetImage(bg_image),fit: BoxFit.cover,
-                colorFilter: new ColorFilter.mode(Colors.black.withOpacity(0.5), BlendMode.dstATop),
-              ));
+              );
   }
 
 ThemeData maintheme(){
