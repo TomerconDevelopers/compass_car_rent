@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:compass_rent_car/utils/utils.dart';
+
 import '../globals.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -44,6 +46,19 @@ insertifnotexitsuser(String id,Map data) async {
         print("User already exists");
       }); 
 }
+List getusers(int page)  {
+  http.
+    get(resturl+"users?filter="+Uri.encodeFull("{'type':'user'}")+"&count=true&page="+page.toString()+"&pagesize=10&hal=f&np",
+    headers: headers).
+      timeout(const Duration(seconds: 20)).catchError((err){
+      print("${err}");}).then((value){
+        if((value.statusCode==404)){return {"error":value.statusCode.toString()};}else{
+         print("${value.body}");
+          List val =  json.decode(value.body);
+          return val;
+        }
+      });
+}
 insert_user(String id,Map data) async {
   await http.
     put(resturl+"users/$id/",
@@ -56,5 +71,21 @@ insert_user(String id,Map data) async {
       timeout(const Duration(seconds: 20)).catchError((err){
       print("${err}");}).then((value){
         print("User $id inserted");
+      });
+}
+insert_car(Map data) async {
+  UniqueKey id =UniqueKey();
+  await http.
+    put(resturl+"car/${data['model']}",
+    headers: {
+      "Content-type": "application/json",
+      HttpHeaders.authorizationHeader: basicAuth,
+      },
+      body:json.encode(data)
+      ).
+      timeout(const Duration(seconds: 20)).catchError((err){
+      print("${err}");}).then((value){
+        print("Car  inserted");
+        //showtoast("Car inserted", Colors.green);
       });
 }

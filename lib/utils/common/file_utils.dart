@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
+import 'package:file_picker_web/file_picker_web.dart';
 import 'package:filesize/filesize.dart';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
@@ -12,31 +12,30 @@ import '../../globals.dart';
 import '../utils.dart' as ut;
 import 'vars.dart';
 
-File file;bool dialog_active;
+var file;bool dialog_active;
 
-Future<File> pickfile(State m) async {
+Future pickfile(State m) async {
     // Will return a File object directly from the selected file
-    File temp;
-    temp =  await FilePicker.getFile(type: FileType.any);
+    var temp;
+    temp =  await FilePicker.getFile();
     print("temp $temp");
     return temp;
   }
-
-  Widget filetext() {
+Widget filetext() {
     return Row(
       children: <Widget>[
         Column(
           children: <Widget>[
             Icon(Icons.insert_drive_file),
             Text(
-              "${filesize(file.lengthSync())}",
+            "${filesize(file.size)}",
               style: TextStyle(fontSize: 10),
             ),
           ],
         ),
 
         Expanded(
-          child: Text(p.basename(file.path)),
+          child:Text("${file.name}"),//Text(p.basename(file)),
         ),
 
         //fname = p.basename(file.path);
@@ -53,7 +52,7 @@ Future<File> pickfile(State m) async {
               "You cant change file. Delete current file then Upload new files",
               Colors.red);
         } else {
-          File temp = await pickfile(m);
+          var temp = await pickfile(m);
           m.setState(() {
             file = temp;
           });
@@ -93,12 +92,12 @@ Future<File> pickfile(State m) async {
       ),
     );
   }
-  Future<String> uploadfile(File file,State m) async {
+  Future<String> uploadfile(var file,State m) async {
     m.setState(() {loadingtext="Uploading file ...";});
     
   ut.load(m,true);
   //String extension = 'png';
-  String filename = file.path.split("/").last;
+  String filename = file.name.toString();
   final String fileName = randomNumeric(5)+filename;
   final String phpEndPoint = '$imageurl/files/upload.php';
   String base64Image = base64Encode(file.readAsBytesSync());

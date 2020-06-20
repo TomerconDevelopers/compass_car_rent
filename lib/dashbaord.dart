@@ -1,4 +1,9 @@
 
+import 'dart:convert';
+
+import 'package:compass_rent_car/manageusers.dart';
+import 'package:compass_rent_car/utils/dev.dart';
+import 'package:compass_rent_car/utils/tomform.dart';
 import 'package:compass_rent_car/utils/widgets.dart';
 import 'package:compass_rent_car/widgets/BrowsebyCategory.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +50,28 @@ class DashboardState extends State<Dashboard> {
      }
      print(name);
   }
+  addcar()async{
+    ut.load(this,true);
+    Map<dynamic,dynamic> config={};
+    config["fields"]=
+    [
+           "model#text","number#text","mileage#text","fuel#text","transmission#text","seating#text","price#text","photo#photo",
+           "rentuser#text"
+
+    ];
+    config["photopicker"] = true;
+    config["title"] = "Add new";
+    config["icon"] = Icons.directions_car;
+    config["field_icon_color"] = Colors.orange[700];
+    await Navigator.push(context,
+      MaterialPageRoute(builder: (context) =>
+         TomForm(config: config,)),)
+        .then((var value) async {
+      print("VAL:$value");
+      (value!=null)?insert_car(json.decode(value)):ut.load(this,false);
+    }); 
+
+} 
   
   @override
   void initState() {
@@ -70,7 +97,10 @@ class DashboardState extends State<Dashboard> {
             actions: [
               Row(children:[
                 FlatButton.icon(
-                    onPressed: (){},
+                    onPressed: (){
+Navigator.push(context,MaterialPageRoute(builder: (context)=> ManageUser()));
+
+                    },
                     icon: Icon(Icons.person),
                     label: buttontext("Manage users"),
                     color: Color(0xfff42d44),
@@ -80,7 +110,9 @@ class DashboardState extends State<Dashboard> {
                   ),
                   SizedBox(width:20),
                 FlatButton.icon(
-                    onPressed: (){},
+                    onPressed: (){
+                      addcar();
+                    },
                     icon: Icon(Icons.directions_car),
                     label: buttontext("Add car"),
                     color: Color(0xfff42d44),

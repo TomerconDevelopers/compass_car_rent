@@ -1,12 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:html' as html;
+ 
+import 'package:mime_type/mime_type.dart';
+import 'package:path/path.dart' as Path;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_native_image/flutter_native_image.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:koukicons/camera2.dart';
-import 'package:koukicons/gallery.dart';
+//import 'package:flutter_native_image/flutter_native_image.dart';
+import 'package:image_picker_web/image_picker_web.dart';
+//import 'package:koukicons/camera2.dart';
+//import 'package:koukicons/gallery.dart';
 import 'package:path/path.dart' as p;
 import 'package:random_string/random_string.dart';
 import '../../globals.dart';
@@ -17,14 +21,16 @@ import 'package:http/http.dart' as http;
 import 'vars.dart';
 
 
-File imgFile;
+var imgFile;
 bool dialog_active;
 
 Widget profilephotopicker(State m){
   return InkWell(
+  
     onTap: (){
       showimageselector(m,50);
       dialog_active=true;
+      print("pressed");
       },
     child:
     Container(
@@ -37,8 +43,8 @@ Widget profilephotopicker(State m){
             child: Container(color: Colors.grey[200],
                 child:
                 (imgFile == null)
-                    ? Text('No image selected.')
-                    : Image.file(imgFile,width: 200,height: 100,)
+                    ? Text('No image selected.......')
+                    : Image.memory(imgggg)
             ),
           ),
           Expanded(
@@ -55,14 +61,19 @@ Widget profilephotopicker(State m){
         ],
       ),),);
 }
-Future<String> uploadimage(File file,State m) async {
+Future<String> uploadimage(var file,State m) async {
   ut.load(m,true);
   m.setState(() {loadingtext="Uploading image ...";});
   //String extension = 'png';
-  String filename = file.path.split("/").last;
+  
+    String mimeType = mime(Path.basename(file.fileName));
+    html.File mediaFile =
+        new html.File(mediaData.data, mediaData.fileName, {'type': mimeType});
+  String filename = mediaFile.name.toString();
+  print("asdad"+filename);
   final String fileName = randomNumeric(5)+filename;
   final String phpEndPoint = '$imageurl/pics/upload.php';
-  String base64Image = base64Encode(file.readAsBytesSync());
+  String base64Image = base64Encode(file.data);
   await http.post(phpEndPoint, body: {
     "image": base64Image,
     "name": fileName,
@@ -83,18 +94,27 @@ Future<String> uploadimage(File file,State m) async {
   m.setState(() {loadingtext="loading ...";});
   return "$imageurl/pics/$fileName";
 }
+var mediaData;
+var imgggg;
 getImage(State m,int type, int quality) async {
-  var image = await ImagePicker.pickImage(
-      source: (type==0)?ImageSource.camera:ImageSource.gallery);
+  //var image = await ImagePickerWeb.getImage(outputType: ImageType.file);
+   mediaData = await ImagePickerWeb.getImageInfo;
+    String mimeType = mime(Path.basename(mediaData.fileName));
+    html.File mediaFile =
+        new html.File(mediaData.data, mediaData.fileName, {'type': mimeType});
+
   FocusScope.of(m.context).requestFocus(new FocusNode());
-  if(image!=null) {
+  if(true) {
     //ut.showtoast(p.extension(image.path), Colors.orange);
-    File compressedFile = await FlutterNativeImage.compressImage(image.path,
-        quality: quality, percentage: 80);
+   // File compressedFile = await FlutterNativeImage.compressImage(image.toString(),
+     //   quality: quality, percentage: 80);
+    
     m.setState(() {
-     imgFile = compressedFile;
+     imgFile = mediaFile;
+    imgggg  =mediaData;
+     print(mediaFile.name.toString());
     });
-      Navigator.of(m.context, rootNavigator: true).pop(imgFile);
+      Navigator.of(m.context, rootNavigator: true).pop(imgggg);
       //Navigator.pop(m.context);
       dialog_active = false;
       //ut.showtoast(imgFile.path, Colors.black);
@@ -139,8 +159,9 @@ showimageselector(State m,int quality) async {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  iconitem(m, "Gallery", KoukiconsGallery(height: 60,),1,quality),
-                  iconitem(m, "Camera", KoukiconsCamera2(),0,quality)
+                  iconitem(m, "Gallery", Icon(Icons.photo_size_select_actual,size: 60,), 1, quality)
+               //   iconitem(m, "Gallery", KoukiconsGallery(height: 60,),1,quality),
+          //        iconitem(m, "Camera", KoukiconsCamera2(),0,quality)
                 ],)
           ),
         );
@@ -158,7 +179,8 @@ Widget iconitem(State m,String txt, Widget icon,type, int quality){
           child: icon,),
         Text("$txt")
       ]),
-    onTap: (){var file = getImage(m, type, quality).then((val) {
+    onTap: (){
+      var file = getImage(m, type, quality).then((val) {
 
     print("iconitem $val");
     });

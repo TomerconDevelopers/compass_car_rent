@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:filesize/filesize.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:random_string/random_string.dart';
 import '../globals.dart';
 import '../utils/utils.dart' as ut;
+import 'package:http/http.dart' as http;
 
 
 
@@ -37,6 +40,8 @@ List checkboxselectedvalue=[];
     if(config["initial"]!=null)FIELD_VALUE = config["initial"];
     print(config["initial"]);
   }
+  var imgFile;
+  var file;
   asyncFunc(BuildContext) async {
     ut.load(this, false);
     setState(() {imgFile = null;file=null;});
@@ -152,7 +157,9 @@ List checkboxselectedvalue=[];
         photovalidation();
       }
   }
-  timeout(){ut.showtoast("Time out", Colors.red);}
+  timeout(){
+    //ut.showtoast("Time out", Colors.red);
+    }
   @override
   void initState() {
     super.initState();
@@ -232,7 +239,7 @@ List checkboxselectedvalue=[];
     return InkWell(
       onTap: () async {
         //50 - Image quality
-        File temp =  await showimageselector(this,50);
+        var temp =  await showimageselector(this,50);
         setState(() {imageselected = true;});
         setState(() {imgFile = temp;});
         FIELD_VALUE["photo"] = temp;
@@ -250,13 +257,13 @@ List checkboxselectedvalue=[];
                   (config["initial"]==null)?
                   (imgFile == null)
                       ? Text('No image selected.')
-                      : Image.file(imgFile,width: 200,height: 100,)
+                      : Image.memory(imgFile.data)
                       :
                   (!imageselected)?
                   (FIELD_VALUE['photo']!=null)?
-                  image(FIELD_VALUE['photo']):
+               image(FIELD_VALUE['photo']):
                   Text("No image selected")
-                      :Image.file(imgFile,width: 200,height: 100,)
+                      :Image.memory(imgFile.data)
               ),
             ),
             Expanded(
@@ -276,6 +283,51 @@ List checkboxselectedvalue=[];
           ],
         ),),);
   }
+    Widget filetext() {
+    return Row(
+      children: <Widget>[
+        Column(
+          children: <Widget>[
+            Icon(Icons.insert_drive_file),
+            Text(
+            "${filesize(file.size)}",
+              style: TextStyle(fontSize: 10),
+            ),
+          ],
+        ),
+
+        Expanded(
+          child:Text("${file.name}"),//Text(p.basename(file)),
+        ),
+
+        //fname = p.basename(file.path);
+        //fext = p.extension(file.path);
+      ],
+    );
+  }
+  Future<String> uploadfile(var file,State m) async {
+    m.setState(() {loadingtext="Uploading file ...";});
+    
+  ut.load(m,true);
+  //String extension = 'png';
+  String filename = file.name.toString();
+  
+  final String fileName = randomNumeric(5)+filename;
+  final String phpEndPoint = '$imageurl/files/upload.php';
+  String base64Image = base64Encode(file.readAsBytes);
+  await http.post(phpEndPoint, body: {
+    "image": base64Image,
+    "name": fileName,
+  }).then((res) {
+    ut.load(m,false);
+    FocusScope.of(m.context).requestFocus(new FocusNode());
+  }).catchError((err) {
+    print(err);ut.load(m,false);
+    FocusScope.of(m.context).requestFocus(new FocusNode());
+  });
+  m.setState(() {loadingtext="loading ...";});
+  return "$imageurl/files/$fileName";
+}
   Widget filepicker(String t,bool editmode,State m) {
     return InkWell(
       onTap: () async {
@@ -284,11 +336,11 @@ List checkboxselectedvalue=[];
               "You cant change file. Delete current file then Upload new files",
               Colors.red);
         } else {
-          File temp = await pickfile(m);
+       var temp = await pickfile(m);
           print(temp);
           m.setState(() {
             file = temp;
-          });
+         });
           FIELD_VALUE["file"] = temp;
         }
       },
@@ -302,7 +354,7 @@ List checkboxselectedvalue=[];
               child: Container(
                   color: Colors.grey[200],
                   child: (!editmode)
-                      ? (file == null) ? Text('No file selected.') : filetext()
+                      ? (file == null) ? Text('No file selected.') :filetext()
                       : Text("You can't change file")),
             ),
             if (file != null)
@@ -429,7 +481,7 @@ List checkboxselectedvalue=[];
     return FlatButton(
         onPressed: () {
 
-          DatePicker.showDatePicker(m.context,
+        DatePicker.showDatePicker(m.context,
               showTitleActions: true,
                onChanged: (date) {
                 print('change ${date.day}');
@@ -526,7 +578,7 @@ List checkboxselectedvalue=[];
             FIELD_VALUE[txt] = val;
           },
           initialValue: (config["initial"]!=null)?config["initial"][txt]:"",
-          inputFormatters: (keyboard_type==1)?[WhitelistingTextInputFormatter.digitsOnly]:[],
+          //inputFormatters: (keyboard_type==1)?[WhitelistingTextInputFormatter.digitsOnly]:[],
           keyboardType: (keyboard_type==1)?TextInputType.number:TextInputType.text,
           style: new TextStyle(
             color: Colors.black,
