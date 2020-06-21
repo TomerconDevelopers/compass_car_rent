@@ -4,7 +4,7 @@ import "package:intl/intl_browser.dart";
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:compass_rent_car/utils/common/vars.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:flutter/animation.dart';
 import 'dart:convert';
 
 import 'package:compass_rent_car/utils/dev.dart';
@@ -23,7 +23,11 @@ class ManageUser extends StatefulWidget {
   //BaseState createState() => new BaseState(text,name);
   ManageUserState createState() => new ManageUserState();
 }
-class ManageUserState extends State<ManageUser> {
+class ManageUserState extends State<ManageUser> with TickerProviderStateMixin {
+
+  AnimationController controller;
+  Animation<double> animation;
+
 
   /*
   String text;String name;
@@ -78,7 +82,12 @@ class ManageUserState extends State<ManageUser> {
   @override
   void initState() {
     super.initState();
+    controller = AnimationController(
+        duration: const Duration(milliseconds: 2000), vsync: this);
+    animation = CurvedAnimation(parent: controller, curve: Curves.easeInBack);
+    
     WidgetsBinding.instance.addPostFrameCallback((_) => start(context));
+  controller.forward();
   }
   void start(BuildContext){
     asyncFunc(BuildContext);
@@ -145,40 +154,43 @@ ut.load(this, false);
           body: IndexedStack(
             index: loading ? 2 :  index,
             children: [
-              Container(
-                decoration: bg(),
-                child:
-                a == null ? empty_server("NO users Found"):
-                ListView.builder(
-                  itemCount: a.length,
-                  itemBuilder: (context,ind){
-                  return Container(
-                    margin: EdgeInsets.all(4),
-                    decoration: ut.mycard(Colors.white, 10.0, 5.0),
-                    child: 
-                  ListTile(
-                    onTap: (){
-                      setState(() {
-                        index = 1;
-                        userview = ind;
-                        
-               getcardetails(a[userview]['_id']);
-                      });
-                    },
-                    leading: 
-                      CircleAvatar(
-                    radius: 30.0,
-                    backgroundImage:
-                        NetworkImage("${a[ind]['photo']}"),
-                    backgroundColor: Colors.transparent,
-                  )
-                        ,
-                    title: Text("${a[ind]['name']}"),
-                    subtitle: Text("  ${a[ind]['_id']}"),
-                    ),);
-                }
-              )
-      ), viewprofile() , loader()
+              FadeTransition(
+                opacity: animation,
+                              child: Container(
+                  decoration: bg(),
+                  child:
+                  a == null ? empty_server("NO users Found"):
+                  ListView.builder(
+                    itemCount: a.length,
+                    itemBuilder: (context,ind){
+                    return Container(
+                      margin: EdgeInsets.all(4),
+                      decoration: ut.mycard(Colors.white, 10.0, 5.0),
+                      child: 
+                    ListTile(
+                      onTap: (){
+                        setState(() {
+                          index = 1;
+                          userview = ind;
+                          
+                 getcardetails(a[userview]['_id']);
+                        });
+                      },
+                      leading: 
+                        CircleAvatar(
+                      radius: 30.0,
+                      backgroundImage:
+                          NetworkImage("${a[ind]['photo']}"),
+                      backgroundColor: Colors.transparent,
+                    )
+                          ,
+                      title: Text("${a[ind]['name']}"),
+                      subtitle: Text("  ${a[ind]['_id']}"),
+                      ),);
+                  }
+                )
+      ),
+              ), viewprofile() , loader()
             ],
           ),
     ));

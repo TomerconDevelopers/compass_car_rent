@@ -1,3 +1,4 @@
+import 'package:http/http.dart' as http;
 
 import 'dart:convert';
 
@@ -43,12 +44,22 @@ class DashboardState extends State<Dashboard> {
     };
     List name = [];
   asyncFunc(BuildContext) async {
-    for (var i in cat.keys) {
-      setState(() {
-        name.add(i);
+      http.
+    get(resturl+"car",
+    headers: headers).
+      timeout(const Duration(seconds: 20)).catchError((err){
+      print("${err}");}).then((value){
+        if((value.statusCode==404)){ut.showtoast("Error", Colors.red);}else{
+         print("${value.body}");
+        setState(() {
+          name =   json.decode(value.body);
+          print("val:${name}");
+          
+        });
+
+        }
       });
-     }
-     print(name);
+
   }
   addcar()async{
     ut.load(this,true);
@@ -146,76 +157,102 @@ Navigator.push(context,MaterialPageRoute(builder: (context)=> ManageUser()));
               ],
             ),
           ),
-          body: Container(
-            decoration: bg(),
-            child:
-            SingleChildScrollView(
+          body: TabBarView(
+            children: [
+                tabgen(1),       
+                tabgen(2),       
+                tabgen(3),       
+            ],
+          )
+      ),
+    ));
+  }
+  Widget tabgen(int type){
+    List items=[];
+    if(type == 1){
+      items = name;
+    }else if(type == 2){
+      for ( var i in name ){
+     i["rentuser"] == "null" ?    items.add(i) : print("asdad");
+      }
+    }else if (type == 3){
+      for ( var i in name ){
+     i["rentuser"] != "null" ?    items.add(i) : print("asdad");
+      }
+    }
+   return Container(
+                decoration: bg(),
                 child:
-                Column(
-                  //mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    //Text("ffsf"),
-                  Center(child:Container(
+                SingleChildScrollView(
+                    child:
+                    Column(
+                      //mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        //Text("ffsf"),
+                      Center(child:Container(
       //color: Colors.white,
         width: 1000,
-          child:ResponsiveGridList(
-            scroll: false,
+              child: 
+            items.isEmpty ? Container() :  ResponsiveGridList(
+                scroll: false,
         desiredItemWidth: 300,
         minSpacing: 10,
-        children: name.map((i) {
-          return Container(
-            color: Colors.white,
-            height: 200,
-            child:Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                
-                roundicon(Icons.directions_car,
-                 Colors.grey[300],
-                    Colors.grey[100], 50, 10),
-              Text(i,style: TextStyle(fontSize: 18,
-              fontWeight: FontWeight.w600),
-              textAlign: TextAlign.center,),
-              Text("Vehicle number: KL 11 AX 4859",
-              style: TextStyle(fontSize: 16,
-              color: Colors.blue),
-              textAlign: TextAlign.center,
+        children: items.map((i) {
+         // print("ajasad$i");
+              return Container(
+                color: Colors.white,
+                height: 200,
+                child:Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    CircleAvatar(
+                radius: 40.0,
+                backgroundImage:
+                    NetworkImage("${i['photo']}"),
+                backgroundColor: Colors.transparent,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children:[
-                FlatButton.icon(
-                    onPressed: (){},
-                    icon: Icon(Icons.assignment),
-                    label: buttontext("Details"),
-                    color: Color(0xfff42d44),
-                    hoverColor: Colors.amber,
-                    //padding: EdgeInsets.zero,
-                    textColor: Colors.white,
-                    shape: ut.roundedborder(40)
+          
+                  Text("${i['model']}",style: TextStyle(fontSize: 18,
+                  fontWeight: FontWeight.w600),
+                  textAlign: TextAlign.center,),
+                  Text("${i['number']}",
+                  style: TextStyle(fontSize: 16,
+                  color: Colors.blue),
+                  textAlign: TextAlign.center,
                   ),
-                  FlatButton.icon(
-                    onPressed: (){},
-                    icon: Icon(Icons.edit),
-                    label: buttontext("Edit"),
-                    color: Color(0xfff42d44),
-                    hoverColor: Colors.amber,
-                    textColor: Colors.white,
-                    shape: ut.roundedborder(40)
-                  ),
-              ])
-              
-            ],));
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children:[
+                    FlatButton.icon(
+                        onPressed: (){},
+                        icon: Icon(Icons.assignment),
+                        label: buttontext("Details"),
+                        color: Color(0xfff42d44),
+                        hoverColor: Colors.amber,
+                        //padding: EdgeInsets.zero,
+                        textColor: Colors.white,
+                        shape: ut.roundedborder(40)
+                      ),
+                      FlatButton.icon(
+                        onPressed: (){},
+                        icon: Icon(Icons.edit),
+                        label: buttontext("Edit"),
+                        color: Color(0xfff42d44),
+                        hoverColor: Colors.amber,
+                        textColor: Colors.white,
+                        shape: ut.roundedborder(40)
+                      ),
+                  ])
+                  
+                ],));
         }).toList()
         
     )
     ))
-                  ],
-                )
-            ),
-          )
-      ),
-    ));
+                      ],
+                    )
+                ),
+              );
   }
 }
