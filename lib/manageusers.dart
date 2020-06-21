@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:fluttertoast/fluttertoast.dart';
 import "package:intl/intl_browser.dart";
 
@@ -115,10 +117,36 @@ class ManageUserState extends State<ManageUser> with TickerProviderStateMixin {
           val["type"] = 'user';
       print("VAL:$value");
       (value!=null)?
-      insertifnotexitsuser(json.decode(value)['_id'],val):ut.load(this,false);
+    await  insertifnotexitsuser(json.decode(value)['_id'],val):ut.load(this,false);
+
         }}); 
 ut.load(this, false);
 } 
+insertifnotexitsuser(String id,Map data) async {
+  http.
+    get(resturl+"users/$id/",
+    headers: headers).
+      timeout(const Duration(seconds: 20)).catchError((err){
+      print("${err}");}).then((value){
+        (value.statusCode==404)?insert_user(id, data):
+        print("User already exists");
+      }); 
+}
+insert_user(String id,Map data) async {
+  await http.
+    put(resturl+"users/$id/",
+    headers: {
+      "Content-type": "application/json",
+      HttpHeaders.authorizationHeader: basicAuth,
+      },
+      body:json.encode(data)
+      ).
+      timeout(const Duration(seconds: 20)).catchError((err){
+      print("${err}");}).then((value){
+        print("User $id inserted");
+        getdata();
+      });
+}
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -139,6 +167,9 @@ ut.load(this, false);
   child: FlatButton.icon(
    onPressed: (){
                         adduser();
+                     getdata();
+                     
+                     
                       },
                       icon: Icon(Icons.add),
                       label: buttontext("Add User"),

@@ -26,7 +26,7 @@ Map<dynamic,dynamic> studentinfo;
 String pp_url = "http://vps001.qubehost.com/progradeapp/beta/";
 
 //resthearturl
-String resturl = "http://localhost:8080/compass_car_rent/";
+String resturl = "http://vps001.qubehost.com:8080/compass_car_rent/";
 String username = 'admin';
   String password = 'secret';
   String basicAuth =
