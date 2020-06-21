@@ -30,7 +30,7 @@ void showtoast(String text, Color col) {
         msg: text,
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
-        timeInSecForIos: 1,
+       // timeInSecForIos: 1,
         backgroundColor: col,
         textColor: Colors.white,
         fontSize: 16.0

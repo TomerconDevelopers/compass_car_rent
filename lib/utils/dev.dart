@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:compass_rent_car/utils/utils.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../globals.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +47,35 @@ insertifnotexitsuser(String id,Map data) async {
         print("User already exists");
       }); 
 }
+deleterent(id)async{
+  http.
+    patch(resturl+"car/"+id.toString(),
+    headers: headers,body:json.encode({"rentuser":"null","date":"null"})).
+      timeout(const Duration(seconds: 20)).catchError((err){
+      print("${err}");}).then((value){
+Fluttertoast.showToast(msg: "Updated Successfully",timeInSecForIosWeb: 5);
+      }); 
+}
+update_car(Map data) async {
+  http.
+    get(resturl+"car/${data["id"]}/",
+    headers: headers).
+      timeout(const Duration(seconds: 20)).catchError((err){
+      print("${err}");}).then((value){
+        (value.statusCode !=404)? jsonDecode(value.body)['rentuser'] == "null" ?  update_car_verified(data)  : 
+        Fluttertoast.showToast(msg: "Car Already Taken",timeInSecForIosWeb: 5) :
+        Fluttertoast.showToast(msg: "Car Does NOt Exists",timeInSecForIosWeb: 5);
+      }); 
+      }
+      update_car_verified(Map data) async {
+  http.
+    patch(resturl+"car/"+data["id"],
+    headers: headers,body:json.encode(data)).
+      timeout(const Duration(seconds: 20)).catchError((err){
+      print("${err}");}).then((value){
+Fluttertoast.showToast(msg: "Updated Successfully",timeInSecForIosWeb: 5);
+      }); 
+}
 List getusers(int page)  {
   http.
     get(resturl+"users?filter="+Uri.encodeFull("{'type':'user'}")+"&count=true&page="+page.toString()+"&pagesize=10&hal=f&np",
@@ -76,7 +106,7 @@ insert_user(String id,Map data) async {
 insert_car(Map data) async {
   UniqueKey id =UniqueKey();
   await http.
-    put(resturl+"car/${data['model']}",
+    put(resturl+"car/${data['_id']}",
     headers: {
       "Content-type": "application/json",
       HttpHeaders.authorizationHeader: basicAuth,

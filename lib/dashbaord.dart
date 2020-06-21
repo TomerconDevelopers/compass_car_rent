@@ -56,7 +56,7 @@ class DashboardState extends State<Dashboard> {
     config["fields"]=
     [
            "model#text","number#text","mileage#text","fuel#text","transmission#text","seating#text","price#text","photo#photo",
-           "rentuser#text"
+           "_id#text"
 
     ];
     config["photopicker"] = true;
@@ -68,7 +68,10 @@ class DashboardState extends State<Dashboard> {
          TomForm(config: config,)),)
         .then((var value) async {
       print("VAL:$value");
-      (value!=null)?insert_car(json.decode(value)):ut.load(this,false);
+      var val = jsonDecode(value);
+      val["rentuser"] = "null";
+      val["date"] = "null";
+      (value!=null)?insert_car(val):ut.load(this,false);
     }); 
 
 } 
