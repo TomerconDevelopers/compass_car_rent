@@ -1,3 +1,5 @@
+import 'package:compass_rent_car/cardetails.dart';
+import 'package:compass_rent_car/cardetails.dart';
 import 'package:http/http.dart' as http;
 
 import 'dart:convert';
@@ -6,7 +8,6 @@ import 'package:compass_rent_car/manageusers.dart';
 import 'package:compass_rent_car/utils/dev.dart';
 import 'package:compass_rent_car/utils/tomform.dart';
 import 'package:compass_rent_car/utils/widgets.dart';
-import 'package:compass_rent_car/widgets/BrowsebyCategory.dart';
 import 'package:flutter/material.dart';
 import 'package:responsive_grid/responsive_grid.dart';
 import './utils/utils.dart' as ut;
@@ -30,6 +31,7 @@ class DashboardState extends State<Dashboard> {
     text = a;name = b;
     print("DATA from fisrt page: $text");
   }*/
+
   Map<dynamic,dynamic> cat = {
   "Maruti 800":{"name":"Beverages","ico":"Beverages/beverages"},
     "Omni 800":{"name":"Beverages","ico":"Cosmetics/nailpaint"},
@@ -59,17 +61,47 @@ class DashboardState extends State<Dashboard> {
 
         }
       });
+// initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
+ 
+  }
+   onDidReceiveLocalNotification(){}
+  Future onSelectNotification(String payload) async {
+    if (payload != null) {
+      debugPrint('notification payload: ' + payload);
+    }
+  }
+  getdata()async{
+    ut.load(this, true);
+  name.clear();
+    http.
+    get(resturl+"car",
+    headers: headers).
+      timeout(const Duration(seconds: 20)).catchError((err){
+      print("${err}");}).then((value){
+        if((value.statusCode==404)){ut.showtoast("Error", Colors.red);}else{
+         print("${value.body}");
+        setState(() {
+          name =   json.decode(value.body);
+          print("val:${name}");
+          
+        });
 
+        }
+      });
+      ut.load(this, false);
   }
   addcar()async{
     ut.load(this,true);
     Map<dynamic,dynamic> config={};
     config["fields"]=
     [
-           "model#text","number#text","mileage#text","fuel#text","transmission#text","seating#text","price#text","photo#photo",
-           "_id#text"
+           "model#text","number#text","make#text","colour#text","manufactureyear#text","expiryyear#text","price#text","photo#photo",
+           "_id#text","purchasedate#date","partnershipdetails#text","isthimaradate#date","last_fuel_and_oil_change_kms#text",
+           "oilchange_date#date","oilchange_cost#text","nextdue_km#text","tentative_date#date","repaidetails#text","repaicost#text","washing#text",
+           "miscellanous#text"
 
     ];
+    config["date"]=true;
     config["photopicker"] = true;
     config["title"] = "Add new";
     config["icon"] = Icons.directions_car;
@@ -81,10 +113,11 @@ class DashboardState extends State<Dashboard> {
       print("VAL:$value");
       var val = jsonDecode(value);
       val["rentuser"] = "null";
-      val["date"] = "null";
-      (value!=null)?insert_car(val):ut.load(this,false);
-    }); 
+      val["date"] = 0;
 
+      (value!=null)?await insert_car(val):ut.load(this,false);
+    }); 
+getdata();
 } 
   
   @override
@@ -100,23 +133,25 @@ class DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Compass car rent',
+      title: 'Compass Car Rent',
       theme: maintheme(),
       home: DefaultTabController(
         length: 3,
         child:Scaffold(
           appBar: AppBar(
             leading: Icon(Icons.directions_car),
-            title: Text('Compass car rent'),
+            title: Text('COMPASS CAR RENT'),
             actions: [
               Row(children:[
                 FlatButton.icon(
                     onPressed: (){
-Navigator.push(context,MaterialPageRoute(builder: (context)=> ManageUser()));
+Navigator.push(context,MaterialPageRoute(builder: (context)=> ManageUser())).then((onval){
+  getdata();
+});
 
                     },
                     icon: Icon(Icons.person),
-                    label: buttontext("Manage users"),
+                    label: buttontext("Manage Users"),
                     color: Color(0xfff42d44),
                     hoverColor: Colors.amber,
                     textColor: Colors.white,
@@ -128,24 +163,15 @@ Navigator.push(context,MaterialPageRoute(builder: (context)=> ManageUser()));
                       addcar();
                     },
                     icon: Icon(Icons.directions_car),
-                    label: buttontext("Add car"),
+                    label: buttontext("Add Car"),
                     color: Color(0xfff42d44),
                     hoverColor: Colors.amber,
                     textColor: Colors.white,
                     shape: ut.roundedborder(40)
                   ),
                   SizedBox(width:20),
-                FlatButton.icon(
-                    onPressed: (){},
-                    icon: Icon(Icons.settings),
-                    label: buttontext("Settings"),
-                    color: Color(0xfff42d44),
-                    hoverColor: Colors.amber,
-                    textColor: Colors.white,
-                    shape: ut.roundedborder(40)
-                  ),
+                
               ]),
-              SizedBox(width:100)
               
             ],
             bottom: TabBar(
@@ -166,6 +192,90 @@ Navigator.push(context,MaterialPageRoute(builder: (context)=> ManageUser()));
           )
       ),
     ));
+  }
+  cardetailshandle(data){
+Navigator.push(context,MaterialPageRoute(builder: (context)=> CarDetails(data: data,)));
+    
+  }
+editcar(g) async{
+   ut.load(this,true);
+    Map<dynamic,dynamic> config={};
+    config["fields"]=
+    [
+      "model#text","number#text","make#text","colour#text","manufactureyear#text","expiryyear#text","price#text",
+           "purchasedate#date","partnershipdetails#text","isthimaradate#date",
+      "rentuser#text","last_fuel_and_oil_change_kms#text",
+           "oilchange_date#date","oilchange_cost#text","nextdue_km#text","tentative_date#date","repaidetails#text","repaicost#text","washing#text",
+           "miscellanous#text",
+      "date#date"
+    ];
+    config["date"] = true;
+    config["initial"] = g;
+    List<String> years = [];
+    
+    //years.clear();
+    for(int i=2020;i>=2000;i--){
+      years.add(i.toString());
+    }
+    config["year"] = years;
+    config["test"] = ["red","blue","orange"];
+    //config["accept_terms"] = true;
+    config["title"] = "Add new";
+    config["icon"] = Icons.supervisor_account;
+    config["field_icon_color"] = Colors.orange[700];
+    await Navigator.push(context,
+      MaterialPageRoute(builder: (context) =>
+          TomForm(config: config,)),).then((var value)  {
+      print("#VAL:$value");
+if(value !=null){
+  http.
+    patch(resturl+"car/"+g["_id"].toString(),
+    headers: headers,body:value).
+      timeout(const Duration(seconds: 20)).catchError((err){
+      print("${err}");}).then((val){
+        print("sasas sass "+val.statusCode.toString());
+        ut.showtoast("Updated Successfully",Colors.green);
+  getdata();
+
+      //if(value!=null)edit(value);else asyncFunc(context);
+    }); } });
+ut.load(this, false);
+
+}
+convertdate(date)=>DateTime.fromMillisecondsSinceEpoch(int.parse(date.toString())).toString().split(' ')[0];
+
+
+  deletecar(id){ return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.grey[100],
+          contentPadding: EdgeInsets.all(10),
+          titlePadding: EdgeInsets.all(10),
+          title:
+          Text("Are you Sure to delete the car"),
+          actions: [
+            FlatButton(onPressed: (){
+              Navigator.pop(context);
+            }, child: Text("cancel")),
+            FlatButton(onPressed: (){
+              Navigator.pop(context);
+   http.
+    delete(resturl+"car/"+id.toString(),
+    headers: headers).
+      timeout(const Duration(seconds: 20)).catchError((err){
+      print("${err}");}).then((value){
+        if((value.statusCode==404)){ var eroor =  {"error":value.statusCode.toString()};}else{
+         print("${value.body}");
+        ut.showtoast("Deleted SuccessFUlly", Colors.green);
+        getdata();
+        }
+      });
+  
+            }, child: Text("ok"))
+          ],
+          );});
+   
   }
   Widget tabgen(int type){
     List items=[];
@@ -201,11 +311,23 @@ Navigator.push(context,MaterialPageRoute(builder: (context)=> ManageUser()));
          // print("ajasad$i");
               return Container(
                 color: Colors.white,
-                height: 200,
+                height: 212,
                 child:Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children:[
+                        type == 3 ?   Container(
+                          decoration: rounded(Colors.blue, 15)  ,margin:EdgeInsets.only(left:5), padding: EdgeInsets.symmetric(vertical:5,horizontal:8), child: Text("Return: "+convertdate(i["date"]),style: TextStyle(fontWeight:FontWeight.bold,color:Colors.white),)):Container(),
+                        Expanded(child: SizedBox()),
+                      InkWell(
+                        onTap:()=> deletecar(i["_id"]),
+                        child: 
+                      ut.roundicon(Icons.delete, Colors.white, Colors.red, 17, 4)
+                      ,)
+                    ]),
                     CircleAvatar(
                 radius: 40.0,
                 backgroundImage:
@@ -225,7 +347,9 @@ Navigator.push(context,MaterialPageRoute(builder: (context)=> ManageUser()));
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children:[
                     FlatButton.icon(
-                        onPressed: (){},
+                        onPressed: (){
+                          cardetailshandle(i);
+                        },
                         icon: Icon(Icons.assignment),
                         label: buttontext("Details"),
                         color: Color(0xfff42d44),
@@ -235,7 +359,9 @@ Navigator.push(context,MaterialPageRoute(builder: (context)=> ManageUser()));
                         shape: ut.roundedborder(40)
                       ),
                       FlatButton.icon(
-                        onPressed: (){},
+                        onPressed: (){
+                          editcar(i);
+                        },
                         icon: Icon(Icons.edit),
                         label: buttontext("Edit"),
                         color: Color(0xfff42d44),

@@ -64,7 +64,7 @@ style: TextStyle(color: (txtcol!=null)?txtcol:Colors.black),
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              logo(),
+              //logo(),
               new CircularProgressIndicator(),
               SizedBox(height: 10),
               Text((loadingtext!=null)?loadingtext:"Uploading image ...",
