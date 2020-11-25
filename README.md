@@ -1,6 +1,6 @@
 # compass_rent_car
 
-A new Flutter project.
+Flutter web project for car rent business management.
 
 ## Getting Started
 
